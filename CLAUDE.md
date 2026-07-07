@@ -63,13 +63,14 @@ Later (only if feedback is good):
 
 ## Naming
 
-"Cast" is a placeholder wordmark; the real name is TBD (Matto's call). When it changes, update: the `.wordmark` div and `<title>` in index.html, the OG/Twitter title tags, and the `canonical` + `og:url` domain placeholders.
+The name is **Spell Meditation** (domain: spellmeditation.com). "Cast" was the placeholder wordmark; proper-name mentions were updated to "Spell Meditation" — the `.wordmark` div, the "Spell Meditation is a trick…" and "Spell Meditation doesn't collect…" lines, and the `<title>` / OG / Twitter titles (now "Spell Meditation: Cast a Spell!"). The verb "cast a spell" is kept throughout the copy, and the in-content `h1` is still the playful "Cast a Spell!" — only *proper-name* uses of Cast became Spell Meditation. (This file still refers to the project as "Cast" in places from its original draft; not yet swept.)
 
 ## Open placeholders
 
-- `SUPPORT_URL` in index.html → your Stripe Payment Link (enable "customer chooses what to pay").
-- `YOURDOMAIN.com` throughout index.html (canonical, og:url, og:image, twitter:image) → your real domain.
-- In privacy.html: contact email and operating company name.
+- `SUPPORT_URL` in index.html → your Stripe Payment Link (enable "customer chooses what to pay"). Still a placeholder; the tip buttons point at it.
+- ~~`YOURDOMAIN.com`~~ → done: index.html now uses `spellmeditation.com` (canonical, og:url, og:image, twitter:image).
+- `og-image.png` and `privacy.html` don't exist yet — the OG image and the footer/privacy link will 404 until added.
+- In privacy.html (once created): contact email and operating company name.
 
 ## How I like to work
 
