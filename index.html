@@ -112,12 +112,13 @@
   #intention {
     position: absolute;
     left: 0; right: 0;
-    /* Anchor to screen center, then lift 200px so the text hangs just
-       above the pulsing sphere. Fixed px (not %) keeps the gap to the
-       sphere constant across viewport heights, since the sphere is
-       pinned to the exact center. */
+    /* Anchor to screen center, then lift so the text hangs just above the
+       pulsing sphere. Fixed px keeps the gap to the sphere constant, since
+       the sphere is pinned to the exact center. The max() clamps the lift
+       to 30vh on short screens (landscape, split-screen) so it never
+       crowds the top edge; full 200px holds on any normal portrait phone. */
     top: 50%;
-    transform: translateY(-200px);
+    transform: translateY(max(-200px, -30vh));
     z-index: 2;
     text-align: center;
     font-size: clamp(1.2rem, 3.6vw, 1.7rem);
