@@ -69,8 +69,8 @@ The name is **Spell Meditation** (domain: spellmeditation.com). "Cast" was the p
 
 - `SUPPORT_URL` in index.html → your Stripe Payment Link (enable "customer chooses what to pay"). Still a placeholder; the tip buttons point at it.
 - ~~`YOURDOMAIN.com`~~ → done: index.html now uses `spellmeditation.com` (canonical, og:url, og:image, twitter:image).
-- `og-image.png` and `privacy.html` don't exist yet — the OG image and the footer/privacy link will 404 until added.
-- In privacy.html (once created): contact email and operating company name.
+- `og-image.png` doesn't exist yet — the OG image will 404 until added.
+- ~~`privacy.html`~~ → done: created, styled to match the site, linked from the footer, with contact email (matthew@studiovo.co) and operating company (Studio VO Ventures and Opportunities, Inc.) filled in.
 
 ## How I like to work
 
