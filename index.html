@@ -763,15 +763,18 @@
     ctx.lineWidth = 1.5;
     ctx.strokeStyle = rgba(col, 0.15 + ch * 0.45);
     const sr = R * 0.66;
-    for (let tri = 0; tri < 2; tri++) {
-      ctx.beginPath();
-      for (let k = 0; k <= 3; k++) {
-        const a = (k / 3) * Math.PI * 2 + tri * Math.PI;
-        const x = Math.cos(a) * sr, y = Math.sin(a) * sr;
-        if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-      }
-      ctx.stroke();
+    // seven-pointed star (heptagram {7/3}) drawn as one continuous stroke,
+    // point-up at rest; the slow rotation above turns it. Replaces the old
+    // two-triangle hexagram, which could read as a Star of David.
+    const STAR_POINTS = 7, STAR_STEP = 3;
+    ctx.beginPath();
+    for (let k = 0; k <= STAR_POINTS; k++) {
+      const j = (k * STAR_STEP) % STAR_POINTS;
+      const a = (j / STAR_POINTS) * Math.PI * 2 - Math.PI / 2;
+      const x = Math.cos(a) * sr, y = Math.sin(a) * sr;
+      if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
     }
+    ctx.stroke();
     ctx.beginPath(); ctx.arc(0, 0, sr * 0.62, 0, Math.PI * 2);
     ctx.strokeStyle = rgba(col, 0.12 + ch * 0.3);
     ctx.stroke();
