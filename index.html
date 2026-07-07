@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#05060F">
+
+<title>Cast — meditation, disguised as a spell</title>
+<meta name="description" content="A free browser toy that sneaks you into meditation. Hold the screen to cast a spell, breathe with the light, and let go. No account, no app, no calm-voiced subscription.">
+<link rel="canonical" href="https://YOURDOMAIN.com/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20fill='%2305060F'/%3E%3Ccircle%20cx='16'%20cy='16'%20r='11'%20fill='none'%20stroke='%23B9A8FF'%20stroke-width='1.5'/%3E%3Ccircle%20cx='16'%20cy='16'%20r='2.6'%20fill='%23F4ECD8'/%3E%3C/svg%3E">
+
+<!-- Open Graph / social sharing. Replace YOURDOMAIN.com once you have a domain, and upload og-image.png alongside this file. -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Cast — meditation, disguised as a spell">
+<meta property="og:description" content="Hold the screen. Cast a spell. Accidentally meditate. A free browser toy.">
+<meta property="og:image" content="https://YOURDOMAIN.com/og-image.png">
+<meta property="og:url" content="https://YOURDOMAIN.com/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Cast — meditation, disguised as a spell">
+<meta name="twitter:description" content="Hold the screen. Cast a spell. Accidentally meditate. A free browser toy.">
+<meta name="twitter:image" content="https://YOURDOMAIN.com/og-image.png">
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;0,600&display=swap');
+
+  :root {
+    --void: #0B0E1A;
+    --void-deep: #05060F;
+    --ember: #C8954A;
+    --arcane: #B9A8FF;
+    --bright: #F4ECD8;
+    --dim: rgba(244, 236, 216, 0.42);
+    --faint: rgba(244, 236, 216, 0.16);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--void-deep);
+    color: var(--bright);
+    font-family: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: contain;
+  }
+
+  /* ---------- the experience (hero) ---------- */
+  .hero {
+    position: relative;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    -webkit-user-select: none;
+    user-select: none;
+    touch-action: none;
+  }
+
+  #stage {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    cursor: pointer;
+    touch-action: none;
+  }
+  canvas { display: block; width: 100%; height: 100%; }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    text-align: center;
+    padding: 0 8vw;
+  }
+
+  #prompt { transition: opacity 1.1s ease; }
+  #prompt .line1 {
+    font-size: clamp(1.5rem, 5vw, 2.4rem);
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    margin-bottom: 3rem;
+  }
+  #prompt .line2 {
+    margin-top: 3rem;
+    font-size: clamp(1rem, 3vw, 1.35rem);
+    font-style: italic;
+    color: var(--dim);
+  }
+
+  #breath {
+    position: absolute;
+    left: 0; right: 0;
+    bottom: 18%;
+    z-index: 2;
+    text-align: center;
+    font-size: clamp(1.1rem, 3.4vw, 1.5rem);
+    letter-spacing: 0.22em;
+    text-transform: lowercase;
+    color: var(--dim);
+    opacity: 0;
+    transition: opacity 0.9s ease;
+    pointer-events: none;
+  }
+
+  #intention {
+    position: absolute;
+    left: 0; right: 0;
+    top: 14%;
+    z-index: 2;
+    text-align: center;
+    font-size: clamp(1.2rem, 3.6vw, 1.7rem);
+    font-style: italic;
+    color: var(--bright);
+    opacity: 0;
+    transition: opacity 1s ease;
+    pointer-events: none;
+    padding: 0 10vw;
+  }
+
+  #verdict {
+    font-size: clamp(1.6rem, 5.2vw, 2.6rem);
+    font-weight: 500;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+
+  /* small wordmark, top center of the hero */
+  .wordmark {
+    position: absolute;
+    top: 5%;
+    left: 0; right: 0;
+    z-index: 2;
+    text-align: center;
+    font-size: clamp(1rem, 3vw, 1.2rem);
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    color: var(--faint);
+    pointer-events: none;
+    transition: opacity 1.1s ease;
+  }
+
+  /* capability readout — your portable test instrument */
+  #caps {
+    position: absolute;
+    left: 16px;
+    bottom: 14px;
+    z-index: 3;
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 11px;
+    line-height: 1.7;
+    letter-spacing: 0.04em;
+    color: var(--faint);
+    pointer-events: auto;
+    cursor: default;
+  }
+  #caps .row { display: flex; gap: 8px; }
+  #caps .yes { color: rgba(185, 168, 255, 0.7); }
+  #caps .no  { color: rgba(244, 236, 216, 0.22); }
+  #caps .k { width: 86px; display: inline-block; }
+  #caps .hint { margin-top: 6px; max-width: 210px; color: var(--faint); font-style: normal; }
+
+  #count {
+    position: absolute;
+    right: 18px;
+    bottom: 14px;
+    z-index: 3;
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--faint);
+    pointer-events: none;
+  }
+
+  /* tappable "what is this?" — the mobile path to the content below,
+     since the hero eats swipe gestures */
+  .scroll-hint {
+    position: absolute;
+    left: 0; right: 0;
+    bottom: 3.5%;
+    z-index: 3;
+    text-align: center;
+    font-size: 0.95rem;
+    font-style: italic;
+    letter-spacing: 0.02em;
+    color: var(--dim);
+    text-decoration: none;
+    pointer-events: auto;
+    opacity: 0;
+    transition: opacity 1.1s ease;
+  }
+  .scroll-hint .chev { display: block; font-style: normal; margin-top: 2px; opacity: 0.6; }
+
+  /* ---------- written content (this is what makes you findable) ---------- */
+  .content {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 14vh 7vw 8vh;
+    font-size: 1.25rem;
+    line-height: 1.65;
+  }
+  .content h1 {
+    font-size: clamp(2rem, 6vw, 3rem);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    margin-bottom: 1.4rem;
+  }
+  .content h2 {
+    font-size: clamp(1.3rem, 4vw, 1.7rem);
+    font-weight: 600;
+    margin: 2.4rem 0 0.6rem;
+    color: var(--arcane);
+  }
+  .content p { margin-bottom: 1.1rem; color: rgba(244, 236, 216, 0.82); }
+  .content .lead { font-size: 1.4rem; color: var(--bright); }
+  .content .steps { list-style: none; margin: 0.4rem 0 1.1rem; }
+  .content .steps li { margin-bottom: 0.7rem; color: rgba(244, 236, 216, 0.82); }
+  .content .steps b { color: var(--bright); font-weight: 600; }
+  .content .fn {
+    margin-top: 3rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid rgba(244, 236, 216, 0.1);
+    font-size: 0.95rem;
+    color: var(--dim);
+    font-style: italic;
+  }
+
+  /* support / tip box */
+  .support {
+    margin: 3rem 0 0;
+    padding: 1.8rem;
+    border: 1px solid rgba(185, 168, 255, 0.22);
+    border-radius: 14px;
+    background: rgba(185, 168, 255, 0.05);
+  }
+  .support h2 { margin-top: 0; }
+  .support p { margin-bottom: 1.2rem; }
+  .btn {
+    display: inline-block;
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 0.9rem;
+    letter-spacing: 0.03em;
+    text-decoration: none;
+    color: var(--void-deep);
+    background: var(--arcane);
+    padding: 0.7rem 1.3rem;
+    border-radius: 9px;
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+  .btn:hover { background: var(--bright); transform: translateY(-1px); }
+  .btn:focus-visible { outline: 2px solid var(--bright); outline-offset: 3px; }
+
+  footer {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 3vh 7vw 6vh;
+    font-size: 0.9rem;
+    color: var(--faint);
+    line-height: 1.7;
+  }
+  footer a { color: var(--dim); }
+
+  /* ---------- support banner (slides up after a cast) ---------- */
+  #support-banner {
+    position: fixed;
+    left: 50%;
+    bottom: 0;
+    transform: translate(-50%, 130%);
+    z-index: 50;
+    width: min(520px, calc(100vw - 24px));
+    margin-bottom: 14px;
+    padding: 1rem 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    background: rgba(11, 14, 26, 0.92);
+    border: 1px solid rgba(185, 168, 255, 0.28);
+    border-radius: 14px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  #support-banner.show { transform: translate(-50%, 0); }
+  #support-banner .msg { flex: 1; font-size: 1.05rem; line-height: 1.35; color: var(--bright); }
+  #support-banner .btn { white-space: nowrap; }
+  #support-banner .close {
+    background: none; border: none; color: var(--dim);
+    font-size: 1.4rem; line-height: 1; cursor: pointer; padding: 0 0.2rem;
+    font-family: inherit;
+  }
+  #support-banner .close:hover { color: var(--bright); }
+
+  @media (max-width: 460px) {
+    #support-banner { flex-wrap: wrap; }
+    #support-banner .msg { flex-basis: 100%; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    #prompt, #breath, #intention, #verdict, .wordmark, .scroll-hint { transition-duration: 0.2s; }
+    #support-banner { transition-duration: 0.3s; }
+  }
+</style>
+</head>
+<body>
+
+  <main class="hero">
+    <div id="stage" tabindex="0" role="button" aria-label="Press and hold to cast a spell">
+      <canvas id="c"></canvas>
+    </div>
+
+    <div class="wordmark" id="wordmark">Cast</div>
+
+    <div class="overlay">
+      <div id="prompt">
+        <div class="line1">Press and hold to begin</div>
+        <div class="line2">breathe with the pulsing of the light, release to cast</div>
+      </div>
+      <div id="verdict"></div>
+    </div>
+
+    <div id="intention"></div>
+    <div id="breath"></div>
+
+    <div id="caps" aria-hidden="true">
+      <div class="row"><span class="k">audio</span><span id="cap-audio">—</span></div>
+      <div class="row"><span class="k">haptics</span><span id="cap-haptic">—</span></div>
+      <div class="row"><span class="k">screen lock</span><span id="cap-wake">—</span></div>
+      <div class="hint" id="caps-hint"></div>
+    </div>
+    <div id="count">0 cast</div>
+
+    <a class="scroll-hint" id="scroll-hint" href="#about">what is this?<span class="chev">&#8595;</span></a>
+  </main>
+
+  <!-- Crawlable content. This is the part search engines and humans actually read. -->
+  <section class="content" id="about">
+    <h1>Cast: meditation, disguised as a spell</h1>
+
+    <p class="lead">You already know you should meditate. You've been told a hundred times. Maybe you even downloaded one of those apps with the soothing voice and the monthly fee, opened it twice, and let it rot on your home screen. Same.</p>
+
+    <p>Cast is a trick I'm playing on myself, and now on you. You hold the screen and you're casting a spell. What you're actually doing is breathing slowly and paying attention to one thing for a while. That's the whole spell. That's also, more or less, meditation.<sup>1</sup></p>
+
+    <h2>How it works</h2>
+    <ul class="steps">
+      <li><b>Hold.</b> Press and hold anywhere on the sigil. It starts to draw itself.</li>
+      <li><b>Breathe.</b> Follow the light as it swells and settles. It's pacing your breath whether you notice or not.</li>
+      <li><b>Release.</b> Let go to cast. Hold long enough and the spell lands. Let go early and it just doesn't. No harm, no scolding. Cast another.</li>
+    </ul>
+
+    <h2>Why a spell</h2>
+    <p>No account to make. No streak to protect. No notification nagging you back. It runs in your browser, it costs nothing, and it forgets you the moment you close the tab.</p>
+    <p>I built it because the framing made me grin, and because I wanted to know something: does "cast a spell" get people to sit still for a minute when "meditate for five" never quite does? Turns out the answer, for me at least, is yes.</p>
+
+    <div class="support">
+      <h2>Chip in, if you want</h2>
+      <p>This is a free, faintly ridiculous, entirely earnest little thing. No ads, no upsell, no harvesting your data to sell you a weighted blanket. If you cast a few spells and had a good time, you can toss a dollar at it. If you can't, cast another. Fair trade either way.</p>
+      <a class="btn support-link" href="#" target="_blank" rel="noopener">Toss in a dollar</a>
+    </div>
+
+    <p class="fn"><sup>1</sup> Early evidence that this works: it gets me to sit still. Sample size of one. Peer review pending.</p>
+  </section>
+
+  <footer>
+    <p>Cast doesn't collect anything about you. No accounts, no tracking, nothing stored. If you tip, the payment runs through Stripe, who handle their end under their own privacy terms.</p>
+    <p>Made by <a href="https://matthewoliphant.com" target="_blank" rel="noopener">Matthew Oliphant</a>. Cast a spell. Accidentally meditate.</p>
+  </footer>
+
+  <!-- Slides up a few seconds after a successful cast -->
+  <div id="support-banner" role="dialog" aria-label="Support this project">
+    <div class="msg">Enjoyed that? This one's free and mine. Spare a dollar if you've got one.</div>
+    <a class="btn support-link" href="#" target="_blank" rel="noopener">Toss in a dollar</a>
+    <button class="close" id="banner-close" aria-label="Dismiss">&times;</button>
+  </div>
+
+<script>
+(() => {
+  "use strict";
+
+  // ====== SET THIS: your Stripe Payment Link ======
+  // Create one at dashboard.stripe.com > Payment Links. Turn on
+  // "Let customers choose what to pay" so a dollar (or more) works.
+  const SUPPORT_URL = "https://buy.stripe.com/REPLACE_WITH_YOUR_LINK";
+
+  // point every support button at it
+  document.querySelectorAll('.support-link').forEach(a => { a.href = SUPPORT_URL; });
+
+  // ---------- config ----------
+  const BREATH_HALF = 4.5;          // seconds per inhale / exhale
+  const BREATH_PERIOD = BREATH_HALF * 2;
+  const CHARGE_SECONDS = 27;        // ~3 breaths to full charge
+  const CAST_THRESHOLD = 0.7;       // below this on release = it dissipates
+  const BANNER_DELAY = 4500;        // ms after a cast before the tip banner slides up
+  const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---------- colors ----------
+  const EMBER  = [200, 149, 74];
+  const ARCANE = [185, 168, 255];
+  const BRIGHT = [244, 236, 216];
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const mix = (c1, c2, t) => [lerp(c1[0],c2[0],t), lerp(c1[1],c2[1],t), lerp(c1[2],c2[2],t)];
+  const rgba = (c, a) => `rgba(${c[0]|0},${c[1]|0},${c[2]|0},${a})`;
+  function chargeColor(ch) {
+    let c = mix(EMBER, ARCANE, Math.min(1, ch / 0.92));
+    if (ch > 0.92) c = mix(c, BRIGHT, (ch - 0.92) / 0.08);
+    return c;
+  }
+
+  // ---------- canvas ----------
+  const hero = document.querySelector('.hero');
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d');
+  let W = 0, H = 0, DPR = 1, CX = 0, CY = 0, R = 0, stars = [];
+
+  function resize() {
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = hero.clientWidth; H = hero.clientHeight;
+    canvas.width = Math.round(W * DPR);
+    canvas.height = Math.round(H * DPR);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    CX = W / 2; CY = H / 2;
+    R = Math.min(W, H) / 2.7;
+    stars = [];
+    const n = Math.round((W * H) / 14000);
+    for (let i = 0; i < n; i++) {
+      stars.push({ x: Math.random()*W, y: Math.random()*H, r: Math.random()*1.1 + 0.2, a: Math.random()*0.35 + 0.05 });
+    }
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  // ---------- state ----------
+  const IDLE = 'idle', CHARGING = 'charging', RESOLVE = 'resolve';
+  let state = IDLE;
+  let charge = 0;
+  let holdT = 0;
+  let resolveT = 0;
+  let resolveDur = 0;
+  let cast = false;
+  let rot = 0;
+  let castCount = 0;
+  let lastBreathHalf = -1;
+  let chargedTicked = false;
+  let particles = [];
+  let flash = 0;
+
+  // ---------- DOM cues ----------
+  const promptEl = document.getElementById('prompt');
+  const breathEl = document.getElementById('breath');
+  const intentionEl = document.getElementById('intention');
+  const verdictEl = document.getElementById('verdict');
+  const countEl = document.getElementById('count');
+  const wordmarkEl = document.getElementById('wordmark');
+  const scrollHint = document.getElementById('scroll-hint');
+
+  const INTENTIONS = [
+    { at: 0.12, text: 'Gather your intention.' },
+    { at: 0.46, text: 'Let it take shape.' },
+    { at: 0.80, text: 'Hold it steady.' },
+    { at: 1.00, text: 'It is ready. Release when you are.' },
+  ];
+  let intentionIdx = -1;
+  function updateIntention(ch) {
+    let idx = -1;
+    for (let i = 0; i < INTENTIONS.length; i++) if (ch >= INTENTIONS[i].at) idx = i;
+    if (idx !== intentionIdx) {
+      intentionIdx = idx;
+      if (idx >= 0) { intentionEl.textContent = INTENTIONS[idx].text; intentionEl.style.opacity = '1'; }
+      else intentionEl.style.opacity = '0';
+    }
+  }
+
+  // ---------- audio (feature-detected) ----------
+  let AC = null, audioOK = false, drone = null;
+  function initAudio() {
+    if (AC) return;
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) { audioOK = false; return; }
+    try { AC = new Ctx(); audioOK = true; } catch (e) { audioOK = false; }
+  }
+  function startDrone() {
+    if (!audioOK) return;
+    if (AC.state === 'suspended') AC.resume();
+    stopDrone();
+    const now = AC.currentTime;
+    const master = AC.createGain();
+    master.gain.setValueAtTime(0.0001, now);
+    master.gain.exponentialRampToValueAtTime(0.16, now + 1.2);
+    const filter = AC.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(420, now);
+    filter.Q.value = 0.6;
+    master.connect(filter); filter.connect(AC.destination);
+    const freqs = [110, 110*1.5, 220*1.5];
+    const oscs = freqs.map((f, i) => {
+      const o = AC.createOscillator();
+      o.type = i === 0 ? 'sine' : 'triangle';
+      o.frequency.value = f;
+      o.detune.value = (i - 1) * 4;
+      const g = AC.createGain();
+      g.gain.value = i === 0 ? 1 : 0.0001;
+      o.connect(g); g.connect(master);
+      o.start(now);
+      return { o, g, base: f };
+    });
+    drone = { master, filter, oscs };
+  }
+  function updateDrone(ch, breathEased) {
+    if (!audioOK || !drone) return;
+    const now = AC.currentTime;
+    drone.filter.frequency.setTargetAtTime(420 + ch * 1900, now, 0.2);
+    drone.oscs[1].g.gain.setTargetAtTime(0.0001 + ch * 0.5, now, 0.3);
+    drone.oscs[2].g.gain.setTargetAtTime(0.0001 + ch * ch * 0.4, now, 0.3);
+    drone.master.gain.setTargetAtTime(0.10 + breathEased * 0.09 + ch * 0.04, now, 0.15);
+  }
+  function stopDrone() {
+    if (!audioOK || !drone) return;
+    const now = AC.currentTime;
+    const d = drone; drone = null;
+    try {
+      d.master.gain.cancelScheduledValues(now);
+      d.master.gain.setTargetAtTime(0.0001, now, 0.25);
+      d.oscs.forEach(({ o }) => o.stop(now + 1.4));
+    } catch (e) {}
+  }
+  function castChime(strength) {
+    if (!audioOK) return;
+    if (AC.state === 'suspended') AC.resume();
+    const now = AC.currentTime;
+    const out = AC.createGain();
+    out.gain.value = 0.0001;
+    out.connect(AC.destination);
+    out.gain.setValueAtTime(0.0001, now);
+    out.gain.exponentialRampToValueAtTime(0.22 * strength + 0.02, now + 0.012);
+    out.gain.exponentialRampToValueAtTime(0.0001, now + 2.6);
+    const partials = [880, 1320, 1760, 2640];
+    partials.forEach((f, i) => {
+      const o = AC.createOscillator();
+      o.type = 'sine';
+      o.frequency.value = f;
+      const g = AC.createGain();
+      g.gain.value = (1 / (i + 1)) * 0.5;
+      o.connect(g); g.connect(out);
+      o.start(now);
+      o.stop(now + 2.7);
+    });
+  }
+  function fizzleTone() {
+    if (!audioOK) return;
+    const now = AC.currentTime;
+    const out = AC.createGain();
+    out.gain.value = 0.0001; out.connect(AC.destination);
+    out.gain.exponentialRampToValueAtTime(0.12, now + 0.02);
+    out.gain.exponentialRampToValueAtTime(0.0001, now + 1.1);
+    const o = AC.createOscillator();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(330, now);
+    o.frequency.exponentialRampToValueAtTime(120, now + 0.9);
+    o.connect(out); o.start(now); o.stop(now + 1.2);
+  }
+
+  // ---------- haptics (feature-detected) ----------
+  const hapticOK = ('vibrate' in navigator);
+  function buzz(p) { if (hapticOK) { try { navigator.vibrate(p); } catch (e) {} } }
+
+  // ---------- wake lock (feature-detected) ----------
+  const wakeOK = ('wakeLock' in navigator);
+  let wakeSentinel = null;
+  async function acquireWake() {
+    if (!wakeOK) return;
+    try { wakeSentinel = await navigator.wakeLock.request('screen'); } catch (e) {}
+  }
+  function releaseWake() {
+    if (wakeSentinel) { try { wakeSentinel.release(); } catch (e) {} wakeSentinel = null; }
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && state === CHARGING && wakeOK && !wakeSentinel) acquireWake();
+  });
+
+  // ---------- capability readout ----------
+  function setCap(id, ok) {
+    const el = document.getElementById(id);
+    el.textContent = ok ? '✓ available' : '— unavailable';
+    el.className = ok ? 'yes' : 'no';
+  }
+  (function paintCaps() {
+    initAudio();
+    setCap('cap-audio', audioOK);
+    setCap('cap-haptic', hapticOK);
+    setCap('cap-wake', wakeOK);
+    const missing = [];
+    if (!hapticOK) missing.push('haptics');
+    if (!wakeOK) missing.push('screen lock');
+    const hint = document.getElementById('caps-hint');
+    hint.textContent = missing.length
+      ? `${missing.join(' + ')} not supported here — this is the iOS-PWA gap. the animation still carries the cast.`
+      : 'all channels live on this device.';
+  })();
+
+  // ---------- support banner ----------
+  const banner = document.getElementById('support-banner');
+  let bannerDismissed = false;
+  let bannerTimer = null;
+  function showBanner() { if (!bannerDismissed) banner.classList.add('show'); }
+  function hideBanner() { banner.classList.remove('show'); }
+  document.getElementById('banner-close').addEventListener('click', () => {
+    bannerDismissed = true; hideBanner();
+  });
+
+  // ---------- input ----------
+  function beginHold() {
+    if (state === RESOLVE) return;
+    if (state === IDLE) {
+      state = CHARGING;
+      charge = 0; holdT = 0; intentionIdx = -1; lastBreathHalf = -1; chargedTicked = false;
+      particles = [];
+      promptEl.style.opacity = '0';
+      wordmarkEl.style.opacity = '0';
+      scrollHint.style.opacity = '0';
+      verdictEl.style.opacity = '0';
+      breathEl.style.opacity = '1';
+      initAudio();
+      startDrone();
+      acquireWake();
+      buzz(12);
+    }
+  }
+  function endHold() {
+    if (state !== CHARGING) return;
+    cast = charge >= CAST_THRESHOLD;
+    state = RESOLVE;
+    resolveT = 0;
+    resolveDur = cast ? 1.8 : 1.2;
+    breathEl.style.opacity = '0';
+    intentionEl.style.opacity = '0';
+    releaseWake();
+    stopDrone();
+    if (cast) {
+      const strength = charge;
+      castChime(strength);
+      buzz([0, 30, 40, 90]);
+      flash = Math.min(1, 0.5 + strength * 0.5);
+      spawnBurst(strength);
+      castCount++;
+      countEl.textContent = castCount + ' cast';
+      verdictEl.textContent = 'The spell is cast.';
+      if (!bannerDismissed) { clearTimeout(bannerTimer); bannerTimer = setTimeout(showBanner, BANNER_DELAY); }
+    } else {
+      fizzleTone();
+      buzz(20);
+      verdictEl.textContent = 'The energy returns to you.';
+    }
+    verdictEl.style.opacity = '1';
+  }
+
+  const stage = document.getElementById('stage');
+  stage.addEventListener('pointerdown', (e) => { e.preventDefault(); if (stage.setPointerCapture) stage.setPointerCapture(e.pointerId); beginHold(); });
+  stage.addEventListener('pointerup', (e) => { e.preventDefault(); endHold(); });
+  stage.addEventListener('pointercancel', () => endHold());
+  let spaceDown = false;
+  stage.addEventListener('keydown', (e) => { if ((e.key === ' ' || e.code === 'Space') && !spaceDown) { e.preventDefault(); spaceDown = true; beginHold(); } });
+  stage.addEventListener('keyup', (e) => { if (e.key === ' ' || e.code === 'Space') { e.preventDefault(); spaceDown = false; endHold(); } });
+
+  // scroll hint should scroll, not cast
+  scrollHint.addEventListener('pointerdown', (e) => { e.stopPropagation(); });
+  scrollHint.addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('about').scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth' });
+  });
+
+  // ---------- particles ----------
+  function spawnGather(ch) {
+    const max = REDUCED ? 40 : 130;
+    if (particles.length >= max) return;
+    const spawnRate = 0.3 + ch * 0.9;
+    if (Math.random() > spawnRate) return;
+    const a = Math.random() * Math.PI * 2;
+    const dist = R * (1.4 + Math.random() * 0.7);
+    particles.push({
+      x: CX + Math.cos(a) * dist, y: CY + Math.sin(a) * dist,
+      ang: a, dist, vr: -(40 + Math.random() * 60),
+      size: Math.random() * 1.8 + 0.6, life: 1, gather: true,
+    });
+  }
+  function spawnBurst(strength) {
+    const n = REDUCED ? 50 : 160;
+    for (let i = 0; i < n; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const sp = (120 + Math.random() * 380) * (0.6 + strength * 0.7);
+      particles.push({ x: CX, y: CY, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp,
+        size: Math.random() * 2.4 + 0.8, life: 1, gather: false });
+    }
+  }
+  function updateParticles(dt) {
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      if (p.gather) {
+        p.dist += p.vr * dt;
+        p.x = CX + Math.cos(p.ang) * p.dist;
+        p.y = CY + Math.sin(p.ang) * p.dist;
+        if (p.dist < R * 0.16) { particles.splice(i, 1); continue; }
+        p.life = Math.min(1, p.dist / (R * 1.4));
+      } else {
+        p.x += p.vx * dt; p.y += p.vy * dt;
+        p.vx *= 0.96; p.vy *= 0.96;
+        p.life -= dt * 0.7;
+        if (p.life <= 0) { particles.splice(i, 1); continue; }
+      }
+    }
+  }
+
+  // ---------- draw ----------
+  function drawSigil(ch, breathEased) {
+    const col = chargeColor(ch);
+    const orbR = R * (0.18 + breathEased * 0.05 + ch * 0.04);
+    ctx.save();
+    ctx.translate(CX, CY);
+
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = rgba(col, 0.18);
+    ctx.beginPath(); ctx.arc(0, 0, R, 0, Math.PI * 2); ctx.stroke();
+
+    ctx.save();
+    ctx.rotate(-Math.PI / 2 + rot * 0.2);
+    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = rgba(col, 0.85);
+    ctx.shadowColor = rgba(col, 0.8);
+    ctx.shadowBlur = 16;
+    ctx.beginPath(); ctx.arc(0, 0, R, 0, Math.PI * 2 * ch); ctx.stroke();
+    ctx.restore();
+    ctx.shadowBlur = 0;
+
+    const ticks = 24;
+    for (let i = 0; i < ticks; i++) {
+      const a = (i / ticks) * Math.PI * 2 + rot * 0.2;
+      const lit = (i / ticks) <= ch;
+      const inner = R * 0.93, outer = R * (lit ? 1.05 : 1.0);
+      ctx.strokeStyle = rgba(col, lit ? 0.7 : 0.12);
+      ctx.lineWidth = lit ? 2 : 1;
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(a) * inner, Math.sin(a) * inner);
+      ctx.lineTo(Math.cos(a) * outer, Math.sin(a) * outer);
+      ctx.stroke();
+    }
+
+    ctx.save();
+    ctx.rotate(rot * -0.35);
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = rgba(col, 0.15 + ch * 0.45);
+    const sr = R * 0.66;
+    for (let tri = 0; tri < 2; tri++) {
+      ctx.beginPath();
+      for (let k = 0; k <= 3; k++) {
+        const a = (k / 3) * Math.PI * 2 + tri * Math.PI;
+        const x = Math.cos(a) * sr, y = Math.sin(a) * sr;
+        if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
+    ctx.beginPath(); ctx.arc(0, 0, sr * 0.62, 0, Math.PI * 2);
+    ctx.strokeStyle = rgba(col, 0.12 + ch * 0.3);
+    ctx.stroke();
+    ctx.restore();
+
+    const g = ctx.createRadialGradient(0, 0, 0, 0, 0, orbR);
+    g.addColorStop(0, rgba(BRIGHT, 0.9 * (0.5 + ch * 0.5)));
+    g.addColorStop(0.4, rgba(col, 0.8));
+    g.addColorStop(1, rgba(col, 0));
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(0, 0, orbR, 0, Math.PI * 2); ctx.fill();
+
+    ctx.fillStyle = rgba(BRIGHT, 0.5 + ch * 0.4);
+    ctx.beginPath(); ctx.arc(0, 0, orbR * (0.22 + breathEased * 0.06), 0, Math.PI * 2); ctx.fill();
+
+    ctx.restore();
+  }
+
+  function drawResolve(dt) {
+    resolveT += dt;
+    const t = Math.min(1, resolveT / resolveDur);
+    const col = cast ? chargeColor(1) : EMBER;
+    if (cast) {
+      const ringR = R * (1 + t * 1.6);
+      ctx.save();
+      ctx.translate(CX, CY);
+      ctx.globalAlpha = (1 - t) * 0.8;
+      ctx.strokeStyle = rgba(col, 1);
+      ctx.lineWidth = 3 * (1 - t) + 0.5;
+      ctx.shadowColor = rgba(col, 0.9); ctx.shadowBlur = 20;
+      ctx.beginPath(); ctx.arc(0, 0, ringR, 0, Math.PI * 2); ctx.stroke();
+      ctx.restore();
+      ctx.globalAlpha = 1; ctx.shadowBlur = 0;
+    } else {
+      drawSigil((1 - t) * 0.5, 0.3);
+    }
+    if (t >= 1) {
+      state = IDLE;
+      setTimeout(() => { if (state === IDLE) {
+        promptEl.style.opacity = '1';
+        wordmarkEl.style.opacity = '1';
+        scrollHint.style.opacity = '1';
+        verdictEl.style.opacity = '0';
+      } }, 700);
+    }
+  }
+
+  let lastBreathLabel = '';
+  function updateBreathText(holdSeconds) {
+    const phase = (holdSeconds % BREATH_PERIOD) / BREATH_PERIOD;
+    const label = phase < 0.5 ? 'breathe in' : 'breathe out';
+    if (label !== lastBreathLabel) { lastBreathLabel = label; breathEl.textContent = label; }
+  }
+
+  // ---------- main loop ----------
+  let last = performance.now();
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000);
+    last = now;
+    rot += dt * (REDUCED ? 0.05 : 0.12);
+
+    ctx.clearRect(0, 0, W, H);
+    const bg = ctx.createRadialGradient(CX, CY, R*0.2, CX, CY, Math.max(W, H)*0.75);
+    bg.addColorStop(0, '#0B0E1A');
+    bg.addColorStop(1, '#05060F');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+
+    for (const s of stars) { ctx.fillStyle = rgba(BRIGHT, s.a); ctx.fillRect(s.x, s.y, s.r, s.r); }
+
+    let breathEased = 0;
+    if (state === CHARGING) {
+      holdT += dt;
+      charge = Math.min(1, holdT / CHARGE_SECONDS);
+      const bt = (holdT % BREATH_PERIOD) / BREATH_PERIOD;
+      breathEased = (1 - Math.cos(bt * Math.PI * 2)) / 2;
+      const half = Math.floor((holdT / BREATH_HALF));
+      if (half !== lastBreathHalf) { lastBreathHalf = half; if (holdT > 0.3) buzz(8); }
+      if (charge >= 1 && !chargedTicked) { chargedTicked = true; buzz([0, 18, 30, 18]); }
+      spawnGather(charge);
+      updateIntention(charge);
+      updateBreathText(holdT);
+      updateDrone(charge, breathEased);
+    }
+
+    updateParticles(dt);
+    for (const p of particles) {
+      const col = chargeColor(charge);
+      ctx.fillStyle = rgba(p.gather ? col : chargeColor(1), p.life * 0.9);
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
+    }
+
+    if (state === CHARGING) drawSigil(charge, breathEased);
+    else if (state === RESOLVE) drawResolve(dt);
+    else drawSigil(0, (Math.sin(now/2600)+1)/2 * 0.4);
+
+    if (flash > 0) {
+      ctx.fillStyle = rgba(BRIGHT, flash * 0.5);
+      ctx.fillRect(0, 0, W, H);
+      flash = Math.max(0, flash - dt * 2.2);
+    }
+
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  // fade in the wordmark + scroll hint after a beat
+  setTimeout(() => {
+    if (state === IDLE) { wordmarkEl.style.opacity = '1'; scrollHint.style.opacity = '1'; }
+  }, 1800);
+})();
+</script>
+</body>
+</html>
