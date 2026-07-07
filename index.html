@@ -112,7 +112,12 @@
   #intention {
     position: absolute;
     left: 0; right: 0;
-    top: 14%;
+    /* Anchor to screen center, then lift 200px so the text hangs just
+       above the pulsing sphere. Fixed px (not %) keeps the gap to the
+       sphere constant across viewport heights, since the sphere is
+       pinned to the exact center. */
+    top: 50%;
+    transform: translateY(-200px);
     z-index: 2;
     text-align: center;
     font-size: clamp(1.2rem, 3.6vw, 1.7rem);
