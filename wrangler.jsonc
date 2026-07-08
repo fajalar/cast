@@ -1,0 +1,14 @@
+{
+  "name": "spell-meditation",
+  "main": "src/index.js",  // adjust to your entry point
+  "compatibility_date": "2026-07-08"
+}
+
+{
+  "name": "spell-meditation",
+  "main": "src/index.js",
+  "compatibility_date": "2026-07-08",
+  "assets": {
+    "directory": "./dist"
+  }
+}
