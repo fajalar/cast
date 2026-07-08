@@ -18,7 +18,7 @@ Not yet done: a few placeholder values (see "Open placeholders"), and it is not 
 
 - `index.html` — the whole app. (Currently named `spellcast-prototype.html`; rename to `index.html` for deployment.) Canvas animation, Web Audio, feature-detected haptics and wake lock, the tip banner, and the crawlable landing copy below the hero.
 - `privacy.html` — privacy policy page. Serves at `/privacy.html`.
-- `og-image.png` — 1200x630 social share image. Must sit at site root; the HTML references `/og-image.png`. (Not created yet.)
+- `og-image.png` — 1200x630 social share image at site root; the HTML references `/og-image.png`. The sigil + wordmark + "Cast a Spell!" on the void ground.
 - `styleguide.html` / `styleguide.md` — the design-system reference (colours + type). `styleguide.html` is `noindex`.
 - `favicon.svg`, `favicon.ico` (16/32/48), `apple-touch-icon.png` (180) — the seven-pointed-star favicon set, at site root, linked from all three pages.
 
@@ -71,7 +71,7 @@ The name is **Spell Meditation** (domain: spellmeditation.com). "Cast" was the p
 
 - ~~`SUPPORT_URL`~~ → done: index.html points every tip button at the Square payment link (`https://square.link/u/PCdAzb2S`).
 - ~~`YOURDOMAIN.com`~~ → done: index.html now uses `spellmeditation.com` (canonical, og:url, og:image, twitter:image).
-- `og-image.png` doesn't exist yet — the OG image will 404 until added.
+- ~~`og-image.png`~~ → done: created at site root (sigil + wordmark + "Cast a Spell!"), matching the OG/Twitter image tags.
 - ~~`privacy.html`~~ → done: created, styled to match the site, linked from the footer, with contact email (matthew@studiovo.co) and operating company (Studio VO Ventures and Opportunities, Inc.) filled in.
 
 ## How I like to work
