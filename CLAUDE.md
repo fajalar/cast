@@ -32,7 +32,7 @@ All the feel-tuning levers are named constants at the top of the script in `inde
 - `BREATH_HALF` (4.5) — seconds per inhale or exhale; sets the breathing pace.
 - `CAST_THRESHOLD` (0.7) — how charged the spell must be on release to count as cast vs. dissipate.
 - `BANNER_DELAY` (4500) — ms after a successful cast before the tip banner slides up.
-- `SUPPORT_URL` — the Stripe Payment Link the tip buttons point at.
+- `SUPPORT_URL` — the Square payment link the tip buttons point at.
 
 The two things most worth iterating on early: whether the charge length feels meditative vs. impatient, and whether the release lands as satisfying.
 
@@ -69,7 +69,7 @@ The name is **Spell Meditation** (domain: spellmeditation.com). "Cast" was the p
 
 ## Open placeholders
 
-- `SUPPORT_URL` in index.html → your Stripe Payment Link (enable "customer chooses what to pay"). Still a placeholder; the tip buttons point at it.
+- ~~`SUPPORT_URL`~~ → done: index.html points every tip button at the Square payment link (`https://square.link/u/PCdAzb2S`).
 - ~~`YOURDOMAIN.com`~~ → done: index.html now uses `spellmeditation.com` (canonical, og:url, og:image, twitter:image).
 - `og-image.png` doesn't exist yet — the OG image will 404 until added.
 - ~~`privacy.html`~~ → done: created, styled to match the site, linked from the footer, with contact email (matthew@studiovo.co) and operating company (Studio VO Ventures and Opportunities, Inc.) filled in.

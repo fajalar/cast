@@ -379,7 +379,7 @@
   </section>
 
   <footer>
-    <p>Spell Meditation doesn't collect any data about you. No accounts, no tracking, nothing stored. The only thing it remembers is if you close the Tip pop-up. And only for that active session. If you tip, the payment runs through Stripe, who handle their end under their own privacy terms. <a href="privacy.html">Read the full privacy policy.</a></p>
+    <p>Spell Meditation doesn't collect any data about you. No accounts, no tracking, nothing stored. The only thing it remembers is if you close the Tip pop-up. And only for that active session. If you tip, the payment runs through Square, who handle their end under their own privacy terms. <a href="privacy.html">Read the full privacy policy.</a></p>
     <p>This is a <a href="https://studiovo.co" target="_blank" rel="noopener">Studio VO</a> venture and opportunity. Made by <a href="https://matthewoliphant.com" target="_blank" rel="noopener">Matthew Oliphant</a>. Cast a spell (actual spell casting not guaranteed). Inadvertently meditate. Sorry-not-sorry I tricked you.</p>
   </footer>
 
@@ -394,10 +394,10 @@
 (() => {
   "use strict";
 
-  // ====== SET THIS: your Stripe Payment Link ======
-  // Create one at dashboard.stripe.com > Payment Links. Turn on
-  // "Let customers choose what to pay" so a dollar (or more) works.
-  const SUPPORT_URL = "https://buy.stripe.com/REPLACE_WITH_YOUR_LINK";
+  // ====== Square payment link (the tip jar) ======
+  // Every .support-link button points here. Configured on Square to let the
+  // customer choose the amount, so a dollar or two works.
+  const SUPPORT_URL = "https://square.link/u/PCdAzb2S";
 
   // point every support button at it
   document.querySelectorAll('.support-link').forEach(a => { a.href = SUPPORT_URL; });
