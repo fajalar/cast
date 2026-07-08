@@ -1,7 +1,5 @@
 # Spell Meditation
 
-Context for working on this project in Claude Code. Read this first each session.
-
 ## What this is
 
 Spell Meditation is a browser toy that sneaks people into meditation through the premise of casting a spell. The user presses and holds the screen to charge a spell, breathes with an on-screen sigil that paces their breath, and releases to cast. The "spell" is the meditation. The framing is the trick that gets people to sit still.
