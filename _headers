@@ -1,0 +1,19 @@
+# Cloudflare Pages (and Netlify) headers file.
+# Security headers applied site-wide, plus long cache lifetimes for the
+# static image/icon assets. Deliberately NO Permissions-Policy or CSP here:
+# the app relies on the Screen Wake Lock and Vibration APIs and loads fonts
+# from Google Fonts, and a restrictive policy would silently break those.
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: SAMEORIGIN
+
+/favicon.svg
+  Cache-Control: public, max-age=2592000
+/favicon.ico
+  Cache-Control: public, max-age=2592000
+/apple-touch-icon.png
+  Cache-Control: public, max-age=2592000
+/og-image.png
+  Cache-Control: public, max-age=2592000
