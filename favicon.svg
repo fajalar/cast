@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Seven-pointed star">
+  <rect width="64" height="64" rx="14" fill="#05060F"/>
+  <path d="M 32.00,7.00 L 56.37,37.56 L 21.15,54.52 L 12.45,16.41 L 51.55,16.41 L 42.85,54.52 L 7.63,37.56 Z" fill="none" stroke="#B9A8FF" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/>
+  <circle cx="32" cy="32" r="3.4" fill="#F4ECD8"/>
+</svg>

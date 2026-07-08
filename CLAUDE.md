@@ -18,9 +18,11 @@ Not yet done: a few placeholder values (see "Open placeholders"), and it is not 
 
 - `index.html` — the whole app. (Currently named `spellcast-prototype.html`; rename to `index.html` for deployment.) Canvas animation, Web Audio, feature-detected haptics and wake lock, the tip banner, and the crawlable landing copy below the hero.
 - `privacy.html` — privacy policy page. Serves at `/privacy.html`.
-- `og-image.png` — 1200x630 social share image. Must sit at site root; the HTML references `/og-image.png`.
+- `og-image.png` — 1200x630 social share image. Must sit at site root; the HTML references `/og-image.png`. (Not created yet.)
+- `styleguide.html` / `styleguide.md` — the design-system reference (colours + type). `styleguide.html` is `noindex`.
+- `favicon.svg`, `favicon.ico` (16/32/48), `apple-touch-icon.png` (180) — the seven-pointed-star favicon set, at site root, linked from all three pages.
 
-Fonts load from Google Fonts CDN, so there are no other local assets.
+Fonts load from Google Fonts CDN. The only other local assets are the favicon set (and `og-image.png` once added).
 
 ## The core loop and where to tune it
 
