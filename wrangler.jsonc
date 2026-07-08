@@ -1,8 +1,10 @@
 {
+  "$schema": "node_modules/wrangler/config-schema.json",
   "name": "spell-meditation",
   "main": "src/index.js",
   "compatibility_date": "2026-07-08",
   "assets": {
-    "directory": "./dist"
+    "directory": "./public",
+    "binding": "ASSETS"
   }
 }
