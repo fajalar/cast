@@ -1,4 +1,4 @@
-# CLAUDE.md — Spell Meditation (internal context)
+# instructions.md — Spell Meditation (internal context)
 
 Internal working context for Claude Code / devs. **Not part of the deployed
 site** — excluded via `.assetsignore`. The public-facing front page is

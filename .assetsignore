@@ -1,7 +1,7 @@
 # Files tracked in the repo but NOT served as part of the site.
 # Cloudflare Workers Static Assets reads this from the assets directory root
 # (gitignore-style syntax) and omits anything listed here.
-CLAUDE.md
+instructions.md
 readme.md
 styleguide.md
 wrangler.jsonc
