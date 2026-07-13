@@ -494,7 +494,14 @@
     if (AC) return;
     const Ctx = window.AudioContext || window.webkitAudioContext;
     if (!Ctx) { audioOK = false; return; }
-    try { AC = new Ctx(); audioOK = true; } catch (e) { audioOK = false; }
+    try {
+      AC = new Ctx();
+      audioOK = true;
+      // Live-update the readout as the context transitions (suspended -> running
+      // on the first hold, -> interrupted on a call, etc.), so it stops being a
+      // stale load-time snapshot.
+      AC.onstatechange = () => updateCaps();
+    } catch (e) { audioOK = false; }
   }
   function startDrone() {
     if (!audioOK) return;
@@ -603,24 +610,62 @@
   });
 
   // ---------- capability readout ----------
-  function setCap(id, ok) {
+  const UA = navigator.userAgent || '';
+  const isIOS = /iP(hone|ad|od)/.test(UA) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  // Common in-app browsers (Instagram, etc.) restrict audio + wake lock — a
+  // big source of "audio unavailable" reports on otherwise-current iPhones.
+  const IN_APP = [
+    [/Instagram/i, 'Instagram'],
+    [/FBAN|FBAV|FB_IAB/i, 'Facebook'],
+    [/Messenger/i, 'Messenger'],
+    [/Twitter/i, 'X / Twitter'],
+    [/TikTok|musical_ly|BytedanceWebview/i, 'TikTok'],
+    [/Snapchat/i, 'Snapchat'],
+    [/LinkedInApp/i, 'LinkedIn'],
+    [/\bLine\//i, 'Line'],
+    [/Pinterest/i, 'Pinterest'],
+  ];
+  const inApp = (IN_APP.find(([re]) => re.test(UA)) || [])[1] || null;
+
+  function setCap(id, ok, label) {
     const el = document.getElementById(id);
-    el.textContent = ok ? '✓ available' : '— unavailable';
+    el.textContent = label || (ok ? '✓ available' : '— unavailable');
     el.className = ok ? 'yes' : 'no';
   }
-  (function paintCaps() {
-    initAudio();
-    setCap('cap-audio', audioOK);
+  // Reflect the live AudioContext state, not just whether it constructed once.
+  function audioReadout() {
+    if (!audioOK || !AC) return [false, '— unavailable'];
+    switch (AC.state) {
+      case 'running':     return [true,  '✓ running'];
+      case 'suspended':   return [true,  '✓ ready'];
+      case 'interrupted': return [false, '— interrupted'];
+      case 'closed':      return [false, '— closed'];
+      default:            return [true,  '✓ ' + AC.state];
+    }
+  }
+  function updateCaps() {
+    const [aOK, aLabel] = audioReadout();
+    setCap('cap-audio', aOK, aLabel);
     setCap('cap-haptic', hapticOK);
     setCap('cap-wake', wakeOK);
     const missing = [];
     if (!hapticOK) missing.push('haptics');
     if (!wakeOK) missing.push('screen lock');
-    const hint = document.getElementById('caps-hint');
-    hint.textContent = missing.length
-      ? `${missing.join(' + ')} not supported here — this is the iOS-PWA gap. the animation still carries the cast.`
-      : 'all channels live on this device.';
-  })();
+    let hint;
+    if (inApp) {
+      hint = `you're in ${inApp}'s in-app browser — audio and screen lock are limited here. open in Safari (or your default browser) for the full spell.`;
+    } else if (aOK && AC && AC.state === 'running' && isIOS) {
+      hint = `no sound? flick the iPhone's silent switch off and turn the volume up — iOS mutes web audio otherwise.`;
+    } else if (missing.length) {
+      hint = `${missing.join(' + ')} not supported here — this is the iOS-PWA gap. the animation still carries the cast.`;
+    } else {
+      hint = 'all channels live on this device.';
+    }
+    document.getElementById('caps-hint').textContent = hint;
+  }
+  initAudio();
+  updateCaps();
 
   // ---------- support banner ----------
   const banner = document.getElementById('support-banner');
@@ -646,6 +691,7 @@
       breathEl.style.opacity = '1';
       initAudio();
       startDrone();
+      updateCaps();
       acquireWake();
       buzz(12);
     }
